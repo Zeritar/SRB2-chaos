@@ -4,6 +4,7 @@ void TimeCheck(INT16 curmap, INT16 curtime);
 void ChaosInit(void);
 void GetConsolePlayer(void);
 void DoRandomEvent(void);
+void UndoRandomEvent(void);
 void EventThinker(INT16 curtime);
 void DoFlipGravity(void);
 void UndoFlipGravity(void);

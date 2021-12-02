@@ -5,6 +5,8 @@
 #include "p_local.h"
 #include "d_netcmd.h"
 #include "d_clisrv.h"
+#include "s_sound.h"
+#include "m_random.h"
 
 uint16_t oldemeraldcount;
 player_t *player;
