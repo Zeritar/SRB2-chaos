@@ -88,8 +88,7 @@ void TimeCheck(INT16 curmap, INT16 curtime)
         curmap == 53 ||
         curmap == 54 ||
         curmap == 55 ||
-        curmap == 56
-        )
+        curmap == 56)
         return;
 
     // Get console player for pointer
@@ -97,13 +96,13 @@ void TimeCheck(INT16 curmap, INT16 curtime)
         GetConsolePlayer();
 
     // Start the fun!
-    if (curtime > (1*TICRATE))
+    if (curtime > (1 * TICRATE))
     {
-        if ((curtime % (8*TICRATE)) == 0*TICRATE)
+        if ((curtime % (8 * TICRATE)) == 0 * TICRATE)
         {
             UndoRandomEvent();
         }
-        else if ((curtime % (8*TICRATE)) == 4*TICRATE)
+        else if ((curtime % (8 * TICRATE)) == 4 * TICRATE)
         {
             DoRandomEvent();
         }
@@ -128,50 +127,50 @@ void DoRandomEvent(void)
             UndoRandomEvent();
         }*/
 
-    switch(rand)
+    switch (rand)
     {
-        case 1:
-            lastEvent = LAST_SUPER;
-            DoSuper();
-            break;
-        case 2:
-            lastEvent = LAST_ARMAGEDDON;
-            DoArmageddonBlast();
-            break;
-        case 3:
-            lastEvent = LAST_GRAVITY;
-            DoFlipGravity();
-            break;
-        case 4:
-            lastEvent = LAST_BOMB;
-            DoThrowBomb();
-            break;
-        case 5:
-            lastEvent = LAST_RANDPOWER;
-            DoRandomPowerup();
-            break;
-        case 6:
-            lastEvent = LAST_NAPALM;
-            DoThrowNapalm();
-            break;
-        case 7:
-            lastEvent = LAST_QUAKE;
-            DoEarthquake();
-            break;
-        case 8:
-            lastEvent = LAST_SUPERGRAVITY;
-            DoSuperGravity();
-            break;
-        case 9:
-            lastEvent = LAST_GROWUP;
-            DoGrowUp();
-            break;
-        case 10:
-            lastEvent = LAST_SHRINK;
-            DoShrink();
-            break;
-        default:
-            break;
+    case 1:
+        lastEvent = LAST_SUPER;
+        DoSuper();
+        break;
+    case 2:
+        lastEvent = LAST_ARMAGEDDON;
+        DoArmageddonBlast();
+        break;
+    case 3:
+        lastEvent = LAST_GRAVITY;
+        DoFlipGravity();
+        break;
+    case 4:
+        lastEvent = LAST_BOMB;
+        DoThrowBomb();
+        break;
+    case 5:
+        lastEvent = LAST_RANDPOWER;
+        DoRandomPowerup();
+        break;
+    case 6:
+        lastEvent = LAST_NAPALM;
+        DoThrowNapalm();
+        break;
+    case 7:
+        lastEvent = LAST_QUAKE;
+        DoEarthquake();
+        break;
+    case 8:
+        lastEvent = LAST_SUPERGRAVITY;
+        DoSuperGravity();
+        break;
+    case 9:
+        lastEvent = LAST_GROWUP;
+        DoGrowUp();
+        break;
+    case 10:
+        lastEvent = LAST_SHRINK;
+        DoShrink();
+        break;
+    default:
+        break;
     }
 }
 
@@ -179,39 +178,39 @@ void EventThinker(INT16 curtime)
 {
     switch (lastEvent)
     {
-        case LAST_BOMB:
-            if ((curtime % (1*TICRATE/2)) == 0)
-                DoThrowBomb();
-            break;
-        default:
-            break;
+    case LAST_BOMB:
+        if ((curtime % (1 * TICRATE / 2)) == 0)
+            DoThrowBomb();
+        break;
+    default:
+        break;
     }
 }
 
 void UndoRandomEvent(void)
 {
-    switch(lastEvent)
+    switch (lastEvent)
     {
-        case LAST_SUPER:
-            UndoSuper();
-            break;
-        case LAST_GRAVITY:
-            UndoFlipGravity();
-            break;
-        case LAST_QUAKE:
-            UndoEarthquake();
-            break;
-        case LAST_SUPERGRAVITY:
-            UndoSuperGravity();
-            break;
-        case LAST_GROWUP:
-            UndoGrowUp();
-            break;
-        case LAST_SHRINK:
-            UndoShrink();
-            break;
-        default:
-            break;
+    case LAST_SUPER:
+        UndoSuper();
+        break;
+    case LAST_GRAVITY:
+        UndoFlipGravity();
+        break;
+    case LAST_QUAKE:
+        UndoEarthquake();
+        break;
+    case LAST_SUPERGRAVITY:
+        UndoSuperGravity();
+        break;
+    case LAST_GROWUP:
+        UndoGrowUp();
+        break;
+    case LAST_SHRINK:
+        UndoShrink();
+        break;
+    default:
+        break;
     }
     lastEvent = 0;
 }
@@ -231,18 +230,20 @@ void UndoFlipGravity(void)
 void DoArmageddonBlast(void)
 {
     P_BlackOw(player);
-    player->mo->momz = 45*FRACUNIT;
+    player->mo->momz = 45 * FRACUNIT;
     player->pflags |= PF_JUMPED;
-	P_SetPlayerMobjState(player->mo, S_PLAY_JUMP);
+    P_SetPlayerMobjState(player->mo, S_PLAY_JUMP);
 }
 
 void DoSuper(void)
 {
     oldemeraldcount = emeralds;
-    emeralds = ((EMERALD7)*2)-1;
+    emeralds = ((EMERALD7)*2) - 1;
+
     if (player->rings < 5)
         player->rings = 5;
-        player->charflags |= SF_SUPER;
+
+    player->charflags |= SF_SUPER;
     player->powers[pw_super] = 1;
     S_StartSound(NULL, sfx_s3kb3);
 }
@@ -252,7 +253,7 @@ void UndoSuper(void)
     player->powers[pw_super] = 0;
     if (player->skin == 1 || player->skin == 3 || player->skin == 4)
         player->charflags ^= SF_SUPER;
-    
+
     emeralds = oldemeraldcount;
     player->mo->color = player->skincolor;
     S_StartSound(player->mo, sfx_kc65);
@@ -260,49 +261,49 @@ void UndoSuper(void)
 
 void DoThrowBomb(void)
 {
+    fixed_t zoffset;
+    mobj_t *missile;
+    mobj_t *actor = player->mo;
+
     if (player->pflags & MF2_OBJECTFLIP)
         return;
 
-    fixed_t zoffset;
-	mobj_t *missile;
-    mobj_t *actor = player->mo;
-
-	zoffset = actor->z + FixedMul(64*FRACUNIT, actor->scale);
+    zoffset = actor->z + FixedMul(64 * FRACUNIT, actor->scale);
 
     missile = SpawnPlayerProjectile(actor->x, actor->y, zoffset, MT_FBOMB);
 
     missile->momx = missile->momy = 0;
-	missile->momz = missile->info->speed/2;
+    missile->momz = missile->info->speed / 2;
 }
 
 void DoThrowNapalm(void)
 {
+    fixed_t zoffset;
+    mobj_t *missile;
+    mobj_t *actor = player->mo;
+
     if (player->pflags & MF2_OBJECTFLIP)
         return;
 
-    fixed_t zoffset;
-	mobj_t *missile;
-    mobj_t *actor = player->mo;
-
-	zoffset = actor->z + FixedMul(64*FRACUNIT, actor->scale);
+    zoffset = actor->z + FixedMul(64 * FRACUNIT, actor->scale);
 
     missile = SpawnPlayerProjectile(actor->x, actor->y, zoffset, MT_CYBRAKDEMON_NAPALM_BOMB_LARGE);
 
     missile->momx = missile->momy = 0;
-	missile->momz = missile->info->speed/2;
+    missile->momz = missile->info->speed / 2;
 }
 
 void DoRandomPowerup(void)
 {
     INT32 rand = P_RandomRange(0, 9);
     P_SwitchShield(player, shieldTypes[rand]);
-	S_StartSound(player->mo, shieldSFX[rand]);
+    S_StartSound(player->mo, shieldSFX[rand]);
 }
 
 void DoEarthquake(void)
 {
     quake.time = 999;
-    quake.intensity = 32*FRACUNIT;
+    quake.intensity = 32 * FRACUNIT;
     S_StartSound(player->mo, sfx_s3kccl);
 }
 
@@ -326,7 +327,7 @@ void UndoSuperGravity(void)
 
 void DoGrowUp(void)
 {
-    player->mo->destscale = 2*FRACUNIT;
+    player->mo->destscale = 2 * FRACUNIT;
     player->normalspeed = player->normalspeed / 2;
     player->actionspd = player->actionspd / 2;
     S_StartSound(player->mo, sfx_kc5a);
@@ -342,7 +343,7 @@ void UndoGrowUp(void)
 
 void DoShrink(void)
 {
-    player->mo->destscale = FRACUNIT/2;
+    player->mo->destscale = FRACUNIT / 2;
     S_StartSound(player->mo, sfx_s3k72);
 }
 
