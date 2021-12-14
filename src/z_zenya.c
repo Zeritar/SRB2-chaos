@@ -33,6 +33,7 @@ typedef enum
     LAST_SUPERGRAVITY,
     LAST_GROWUP,
     LAST_SHRINK,
+    LAST_DISCO
 } eventTypes;
 
 mobj_t *SpawnPlayerProjectile(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
@@ -148,7 +149,7 @@ void TimeCheck(INT16 curmap, INT16 curtime)
 
 void DoRandomEvent(void)
 {
-    INT32 rand = P_RandomRange(1, 10);
+    INT32 rand = P_RandomRange(1, 11);
 
     // Double time?
     /*if (lastEvent > 0)
@@ -198,6 +199,10 @@ void DoRandomEvent(void)
         lastEvent = LAST_SHRINK;
         DoShrink();
         break;
+    case 11:
+        lastEvent = LAST_DISCO;
+        DoDiscoMode();
+        break;
     default:
         break;
     }
@@ -237,6 +242,9 @@ void UndoRandomEvent(void)
         break;
     case LAST_SHRINK:
         UndoShrink();
+        break;
+    case LAST_DISCO:
+        UndoDiscoMode();
         break;
     default:
         break;
