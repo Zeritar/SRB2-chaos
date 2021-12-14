@@ -426,7 +426,7 @@ typedef struct
 
 	// Texture indices.
 	// We do not maintain names here.
-	INT32 toptexture, bottomtexture, midtexture;
+	INT32 toptexture, bottomtexture, midtexture, oldtoptexture, oldbottomtexture, oldmidtexture;
 
 	// Linedef the sidedef belongs to
 	line_t *line;

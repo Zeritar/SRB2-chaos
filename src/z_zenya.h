@@ -22,5 +22,9 @@ void DoGrowUp(void);
 void UndoGrowUp(void);
 void DoShrink(void);
 void UndoShrink(void);
+void DoDiscoMode(void);
+void UndoDiscoMode(void);
+void ResetPlayer(void);
+void BackupPlayer(void);
 
 mobj_t *SpawnPlayerProjectile(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);

@@ -7,12 +7,19 @@
 #include "d_clisrv.h"
 #include "s_sound.h"
 #include "m_random.h"
+#include "r_state.h"
+#include "r_defs.h"
+#include "r_textures.h"
 
 uint16_t oldemeraldcount;
 player_t *player;
 INT32 lastEvent;
 shieldtype_t shieldTypes[10];
 sfxenum_t shieldSFX[10];
+fixed_t oldactionspd;
+UINT8 oldcharability;
+UINT8 oldcharability2;
+fixed_t oldnormalspeed;
 
 typedef enum
 {
@@ -66,6 +73,28 @@ void ChaosInit(void)
 void GetConsolePlayer(void)
 {
     player = &players[consoleplayer];
+    ResetPlayer();
+    BackupPlayer();
+}
+
+void ResetPlayer(void)
+{
+    if (oldactionspd)
+        player->actionspd = oldactionspd;
+    if (oldnormalspeed)
+        player->normalspeed = oldnormalspeed;
+    if (oldcharability)
+        player->charability = oldcharability;
+    if (oldcharability2)
+        player->charability2 = oldcharability2;
+}
+
+void BackupPlayer(void)
+{
+    oldactionspd = player->actionspd;
+    oldnormalspeed = player->normalspeed;
+    oldcharability = player->charability;
+    oldcharability2 = player->charability2;
 }
 
 // Checking current level time to see if we've reached the timelimit if there is one
@@ -82,13 +111,7 @@ void TimeCheck(INT16 curmap, INT16 curtime)
     }
 
     // For now let's stay out of NiGHTs. Might do something else there at a later date.
-    if (curmap == 50 ||
-        curmap == 51 ||
-        curmap == 52 ||
-        curmap == 53 ||
-        curmap == 54 ||
-        curmap == 55 ||
-        curmap == 56)
+    if (curmap >= 50 && curmap <= 56)
         return;
 
     // Get console player for pointer
@@ -101,11 +124,17 @@ void TimeCheck(INT16 curmap, INT16 curtime)
         if ((curtime % (8 * TICRATE)) == 0 * TICRATE)
         {
             UndoRandomEvent();
+            //UndoDiscoMode();
+            // UndoGrowUp();
         }
         else if ((curtime % (8 * TICRATE)) == 4 * TICRATE)
         {
             DoRandomEvent();
         }
+
+        if (curtime == 2 * TICRATE)
+            // DoDiscoMode();
+            // DoGrowUp();
 
         // Double time?
         /*if ((curtime % (4*TICRATE)) == 0)
@@ -336,8 +365,8 @@ void DoGrowUp(void)
 void UndoGrowUp(void)
 {
     player->mo->destscale = FRACUNIT;
-    player->normalspeed = player->normalspeed * 2;
-    player->actionspd = player->actionspd * 2;
+    player->normalspeed = oldnormalspeed;
+    player->actionspd = oldactionspd;
     S_StartSound(player->mo, sfx_kc59);
 }
 
@@ -351,4 +380,135 @@ void UndoShrink(void)
 {
     player->mo->destscale = FRACUNIT;
     S_StartSound(player->mo, sfx_s3k75);
+}
+
+void DoDiscoMode(void)
+{
+    size_t linenum;
+    side_t *this;
+    boolean always = false;
+
+    int discoTexture = 38;
+
+    /*for (int i = 0; i < numtextures; i++)
+    {
+        if (!strcmp(textures[i]->name, "GFZBRICK"))
+        {
+            CONS_Printf(va("Texture %d: %s.\n", i, textures[i]->name));
+            testTexture = i;
+        }
+    }*/
+
+    S_ChangeMusicEx("DISCO", 0, true, 0, 0, 0);
+    // P_PlayJingleMusic(player, "DISCO", 0, true, 3);
+
+    for (linenum = 0; linenum < numlines; linenum++)
+    {
+        if (lines[linenum].special == 439)
+            continue; // Don't override other set texture lines!
+
+        // Massive test, do ALL (Yes, ALL) lines
+        // if (!Tag_Find(&lines[linenum].tags, tag))
+        // continue; // Find tagged lines
+
+        // Front side
+        this = &sides[lines[linenum].sidenum[0]];
+        if (always == true || (this->toptexture))
+        {
+            this->oldtoptexture = this->toptexture;
+            this->toptexture = discoTexture;
+        }
+
+        if (always == true || (this->midtexture && this->line->flags & ML_IMPASSIBLE))
+        {
+            this->oldmidtexture = this->midtexture;
+            this->midtexture = discoTexture;
+        }
+        if (always == true || (this->bottomtexture))
+        {
+            this->oldbottomtexture = this->bottomtexture;
+            this->bottomtexture = discoTexture;
+        }
+
+        if (lines[linenum].sidenum[1] == 0xffff)
+            continue; // One-sided stops here.
+
+        // Back side
+        this = &sides[lines[linenum].sidenum[1]];
+        if (always == true || (this->toptexture))
+        {
+            this->oldtoptexture = this->toptexture;
+            this->toptexture = discoTexture;
+        }
+        if (always == true || (this->midtexture && this->line->flags & ML_IMPASSIBLE))
+        {
+            this->oldmidtexture = this->midtexture;
+            this->midtexture = discoTexture;
+        }
+        if (always == true || (this->bottomtexture))
+        {
+            this->oldbottomtexture = this->bottomtexture;
+            this->bottomtexture = discoTexture;
+        }
+    }
+}
+
+void UndoDiscoMode(void)
+{
+    size_t linenum;
+    side_t *this;
+
+    P_RestoreMusic(player);
+
+    for (linenum = 0; linenum < numlines; linenum++)
+    {
+        if (lines[linenum].special == 439)
+            continue; // Don't override other set texture lines!
+
+        // Massive test, do ALL (Yes, ALL) lines
+        // if (!Tag_Find(&lines[linenum].tags, tag))
+        // continue; // Find tagged lines
+
+        // TODO: Exceptions to texture change, like water and lava.
+
+        // Front side
+        this = &sides[lines[linenum].sidenum[0]];
+        if (this->oldtoptexture > 0)
+        {
+            this->toptexture = this->oldtoptexture;
+            this->oldtoptexture = 0;
+        }
+
+        if (this->oldmidtexture > 0)
+        {
+            this->midtexture = this->oldmidtexture;
+            this->oldmidtexture = 0;
+        }
+        if (this->oldbottomtexture > 0)
+        {
+            this->bottomtexture = this->oldbottomtexture;
+            this->oldbottomtexture = 0;
+        }
+
+        if (lines[linenum].sidenum[1] == 0xffff)
+            continue; // One-sided stops here.
+
+        // Back side
+        this = &sides[lines[linenum].sidenum[1]];
+        if (this->oldtoptexture > 0)
+        {
+            this->toptexture = this->oldtoptexture;
+            this->oldtoptexture = 0;
+        }
+        if (this->oldmidtexture > 0)
+        {
+            this->midtexture = this->oldmidtexture;
+            this->oldmidtexture = 0;
+        }
+        if (this->oldbottomtexture > 0)
+        {
+            this->bottomtexture = this->oldbottomtexture;
+            this->oldbottomtexture = 0;
+        }
+    }
 }
